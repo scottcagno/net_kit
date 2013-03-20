@@ -18,12 +18,13 @@ import (
 )
 
 const (
-	MIN   = 60
-	HOUR  = MIN * 60
-	DAY   = HOUR * 24
-	WEEK  = DAY * 7
-	MONTH = DAY * 30
-	YEAR  = WEEK * 52
+	MIN     = 60
+	HOUR    = MIN * 60
+	DAY     = HOUR * 24
+	WEEK    = DAY * 7
+	MONTH   = DAY * 30
+	YEAR    = WEEK * 52
+	SESSION = 0
 )
 
 type Store struct {
