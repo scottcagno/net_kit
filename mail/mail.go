@@ -48,8 +48,8 @@ func (self *Email) Body(body string) *Email {
 	return self
 }
 
-func (self *Email) Send() {
-	c, err := smtp.Dial("localhost:25")
+func (self *Email) SendFrom(host string) {
+	c, err := smtp.Dial(host + ":25")
 	defer c.Quit()
 	if err != nil {
 		c.Reset()
