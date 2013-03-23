@@ -53,7 +53,7 @@ func (self *Email) Body(body string) *Email {
 func (self *Email) SendMail() {
 	c, err := smtp.Dial(self.Host_)
 	if err != nil {
-		c.Reset()
+		//c.Reset()
 		log.Fatal(err)
 	}
 	c.Mail(self.From_)
