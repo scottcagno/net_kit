@@ -16,7 +16,17 @@ import (
 )
 
 var (
-	Acct = Account{
+	// Production Account Info
+	Acct = Acct{
+		ApiURI:      "https://ws.fedex.com:443/web-services",
+		DevKey:      "BltV0ugnEcMK7KdK",
+		Password:    "0yi3ftgSTxvB4TeAxfFcHJg0w",
+		AcctNumber:  "119710618",
+		MeterNumber: "104991078",
+	}
+
+	// Testing Account Info
+	TestAcct = Account{
 		ApiURI:      "https://wsbeta.fedex.com:443/web-services",
 		DevKey:      "isurR8vQXGWe7NdB",
 		Password:    "sLpViYx5Zem7T01fLIHRZyKAQ",
