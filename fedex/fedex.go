@@ -17,7 +17,7 @@ import (
 
 var (
 	// Production Account Info
-	Acct = Acct{
+	Acct = Account{
 		ApiURI:      "https://ws.fedex.com:443/web-services",
 		DevKey:      "BltV0ugnEcMK7KdK",
 		Password:    "0yi3ftgSTxvB4TeAxfFcHJg0w",
