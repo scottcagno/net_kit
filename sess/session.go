@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 	"sync"
 	"time"
 )
@@ -59,7 +58,7 @@ func (self *Store) FreshSession(sid string) *Session {
 		sid:   sid,
 		store: self,
 		ts:    time.Now(),
-		vals:  make(map[string]string, 0),
+		vals:  make(map[string][]string, 0),
 	}
 }
 
@@ -157,21 +156,18 @@ type Session struct {
 	sid   string
 	store *Store
 	ts    time.Time
-	vals  map[string]string
+	vals  map[string][]string
 }
 
 func (self *Session) SetFlash(style, key, val string) {
-	self.vals["flash-"+key] = style + ":" + val
+	self.vals["flash-"+key] = []string{style, val}
 	self.store.Update(self.sid)
 }
 
-func (self *Session) GetFlash(key string) map[string]string {
-	vals := make([]string, 2)
-	flash := make(map[string]string, 0)
-	if val, ok := self.vals["flash-"+key]; ok {
-		vals = strings.Split(val, ":")
-		flash["style"] = vals[0]
-		flash["flash"] = vals[1]
+func (self *Session) GetFlash(key string) []string {
+	flash := make([]string, 2)
+	if vals, ok := self.vals["flash-"+key]; ok {
+		flash = vals
 		delete(self.vals, "flash-"+key)
 		self.store.Update(self.sid)
 	} else {
@@ -180,18 +176,17 @@ func (self *Session) GetFlash(key string) map[string]string {
 	return flash
 }
 
-func (self *Session) Set(key, val string) {
-	self.vals[key] = val
+func (self *Session) Set(key string, vals []string) {
+	self.vals[key] = vals
 	self.store.Update(self.sid)
 }
 
-func (self *Session) Get(key string) string {
-	value := ""
-	if val, ok := self.vals[key]; ok {
-		value = val
+func (self *Session) Get(key string) []string {
+	if vals, ok := self.vals[key]; ok {
 		self.store.Update(self.sid)
+		return vals
 	}
-	return value
+	return nil
 }
 
 func (self *Session) Del(key string) {

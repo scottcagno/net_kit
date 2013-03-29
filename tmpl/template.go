@@ -10,6 +10,8 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"reflect"
+	"strings"
 	"sync"
 )
 
@@ -32,7 +34,13 @@ func NewTemplateStore(dir, base string) *TemplateStore {
 		base:   base,
 		cached: make(map[string]*template.Template),
 		funcs: template.FuncMap{
-			"safe": safe,
+			"title": strings.Title,
+			"safe":  safe,
+			"eq":    eq,
+			"add":   add,
+			"sub":   sub,
+			"decr":  decr,
+			"incr":  incr,
 		},
 	}
 }
@@ -41,6 +49,42 @@ func NewTemplateStore(dir, base string) *TemplateStore {
 func safe(html string) template.HTML {
 	return template.HTML(html)
 }
+
+// check for equality
+func eq(args ...interface{}) bool {
+	if len(args) == 0 {
+		return false
+	}
+	x := args[0]
+	switch x := x.(type) {
+	case string, int, int64, byte, float32, float64:
+		for _, y := range args[1:] {
+			if x == y {
+				return true
+			}
+		}
+		return false
+	}
+
+	for _, y := range args[1:] {
+		if reflect.DeepEqual(x, y) {
+			return true
+		}
+	}
+	return false
+}
+
+// decrement
+func decr(a int) int { return a - 1 }
+
+// increment
+func incr(a int) int { return a + 1 }
+
+// add
+func add(a, b int) int { return a + b }
+
+// subtract
+func sub(a, b int) int { return a - b }
 
 // load template files associated with base into cache
 func (self *TemplateStore) Load(name ...string) {
