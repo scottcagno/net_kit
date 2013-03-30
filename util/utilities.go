@@ -68,7 +68,7 @@ func Random(n int) string {
 	rand.Read(e)
 	b := make([]byte, base64.URLEncoding.EncodedLen(len(e)))
 	base64.URLEncoding.Encode(b, e)
-	return string(b)
+	return strings.Replace(string(b), "=", "", -1)
 }
 
 // snake a string
