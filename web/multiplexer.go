@@ -93,6 +93,7 @@ func (self *Multiplexer) Forward(path, newpath string) {
 	self.Handle("GET", path, http.RedirectHandler(newpath, 301))
 }
 
+// static file handler
 func (self *Multiplexer) Static(path, folder string) {
 	n := len(path)
 	if n > 0 && path[n-1] != '/' {
