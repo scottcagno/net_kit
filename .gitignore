@@ -37,5 +37,4 @@ Icon?
 ehthumbs.db
 Thumbs.db
 net_kit
-prox/example
-prox/prox
+prox/*

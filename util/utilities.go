@@ -7,13 +7,21 @@
 package util
 
 import (
+	"crypto/md5"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
+	"runtime"
 	"strings"
 )
+
+// perfomance enhancment (be careful)
+func MaxPerformance() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
+}
 
 // hex encoder
 func EncodeHex(s string) string {
@@ -68,7 +76,18 @@ func Random(n int) string {
 	rand.Read(e)
 	b := make([]byte, base64.URLEncoding.EncodedLen(len(e)))
 	base64.URLEncoding.Encode(b, e)
-	return strings.Replace(string(b), "=", "", -1)
+	return string(b)[:n]
+}
+
+// return md5 hash (32 bytes)
+func Md5() string {
+	h := md5.New()
+	i := 3
+	for i > 0 {
+		io.WriteString(h, Random(16))
+		i--
+	}
+	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
 // snake a string

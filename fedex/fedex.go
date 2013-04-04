@@ -13,6 +13,7 @@ import (
 	"html/template"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 var (
@@ -71,6 +72,7 @@ type Shipment struct {
 	TrackingId      string
 	RequestTemplate *template.Template
 	TagTemplate     *template.Template
+	Timestamp       time.Time
 }
 
 type Contact struct {
@@ -89,6 +91,7 @@ func NewShipment(shipper, recipient Contact) *Shipment {
 		Recipient:       recipient,
 		RequestTemplate: template.Must(template.New("xml").Parse(REQUEST_SHIPMENT_XML)),
 		TagTemplate:     template.Must(template.New("tag").Parse(`<img width="380" hspace="25" vspace="50" src="data:image/png;base64,{{ .tag }}">`)),
+		Timestamp:       time.Now(),
 	}
 }
 
@@ -189,10 +192,12 @@ var REQUEST_SHIPMENT_XML = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmls
 		    	<v12:MeterNumber>{{ .fedex.Account.MeterNumber }}</v12:MeterNumber>
 		  	</v12:ClientDetail>
 		  	
+		  	<!--
 		  	<v12:TransactionDetail>
 		    	<v12:CustomerTransactionId>** TEST TRANSACTION**</v12:CustomerTransactionId>
 		  	</v12:TransactionDetail>
-		  
+		  	-->
+
 		  	<v12:Version>
 		    	<v12:ServiceId>ship</v12:ServiceId>
 		    	<v12:Major>12</v12:Major>
@@ -202,7 +207,7 @@ var REQUEST_SHIPMENT_XML = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmls
 		  
 		  	<v12:RequestedShipment>
 		  		
-		  		<v12:ShipTimestamp>2012-05-07T20:04:33.948Z</v12:ShipTimestamp>
+		  		<v12:ShipTimestamp>{{ .fedex.Timestamp }}</v12:ShipTimestamp>
 		    	<v12:DropoffType>REGULAR_PICKUP</v12:DropoffType>
 		    	<v12:ServiceType>PRIORITY_OVERNIGHT</v12:ServiceType>
 		    	<v12:PackagingType>YOUR_PACKAGING</v12:PackagingType>
