@@ -37,6 +37,15 @@ func (self *Form) Render(t *template.Template) string {
 	return html.String()
 }
 
+func (self *Form) SetError(inputName, errStr string) {
+	for i := 0; i < len(self.Inputs); i++ {
+		if self.Inputs[i].Name == inputName {
+			self.Inputs[i].Error = errStr
+			self.Errors[self.Inputs[i].Name] = errStr
+		}
+	}
+}
+
 func (self *Form) IsValid(r *http.Request) bool {
 	isValid := true
 	for i := 0; i < len(self.Inputs); i++ {
