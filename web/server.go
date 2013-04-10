@@ -21,7 +21,7 @@ func NewWebServer() *WebServer {
 	server := &WebServer{}
 	server.ReadTimeout = 10 * time.Second
 	server.WriteTimeout = 10 * time.Second
-	server.MaxHeaderBytes = 1 << 20
+	server.MaxHeaderBytes = 1 << 22
 	server.TLSConfig = nil
 	return server
 }

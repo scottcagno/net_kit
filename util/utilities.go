@@ -14,6 +14,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
+	"reflect"
 	"runtime"
 	"strings"
 )
@@ -93,4 +95,32 @@ func Md5() string {
 // snake a string
 func Snake(s string) string {
 	return strings.Replace(strings.ToLower(s), " ", "_", -1)
+}
+
+// convert map to struct
+func MtoS(m map[string]interface{}, v interface{}) {
+	if t := reflect.TypeOf(v).Kind(); t != reflect.Ptr {
+		log.Fatal("expected pointer to struct, got ", t)
+	}
+	val := reflect.Indirect(reflect.ValueOf(v))
+	for n, e := range m {
+		val.FieldByName(n).Set(reflect.ValueOf(e))
+	}
+}
+
+// convert struct to map
+func StoM(v interface{}) map[string]interface{} {
+	if t := reflect.TypeOf(v).Kind(); t != reflect.Ptr {
+		log.Fatal("expected pointer to struct, got ", t)
+	}
+	val := reflect.Indirect(reflect.ValueOf(v))
+	typ := val.Type()
+	m := make(map[string]interface{})
+	for i := 0; i < typ.NumField(); i++ {
+		fld := val.Field(i)
+		if fld.CanSet() {
+			m[typ.Field(i).Name] = fld.Interface()
+		}
+	}
+	return m
 }
