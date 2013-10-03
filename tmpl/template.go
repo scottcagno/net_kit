@@ -7,12 +7,13 @@
 package tmpl
 
 import (
-	"fmt"
 	"html/template"
 	"net/http"
 	"reflect"
 	"strings"
 	"sync"
+	"fmt"
+
 )
 
 // map type
@@ -110,4 +111,18 @@ func (self *TemplateStore) Raw(w http.ResponseWriter, format string, a ...interf
 // set the header content type
 func (self *TemplateStore) ContentType(w http.ResponseWriter, typ string) {
 	w.Header().Set("Content Type", typ)
+}
+
+// simple form validater
+func (self *TemplateStore) Valid(w http.ResponseWriter, m interface{}) (string, bool) {
+	var ss []string
+	for k, v := range m.(M) {
+		if v == "" {
+			ss = append(ss, fmt.Sprintf("%s required", k))
+		}
+	}
+	if len(ss) == 0 {
+		return "", true
+	}
+	return strings.ToUpper(strings.Join(ss, ", ")), false
 }
