@@ -114,15 +114,37 @@ func (self *TemplateStore) ContentType(w http.ResponseWriter, typ string) {
 }
 
 // simple form validater
-func (self *TemplateStore) Valid(w http.ResponseWriter, m interface{}) (string, bool) {
-	var ss []string
-	for k, v := range m.(M) {
-		if v == "" {
-			ss = append(ss, fmt.Sprintf("%s required", k))
+func (self *TemplateStore) Valid(w http.ResponseWriter, v interface{}) (map[string]string, bool) {
+	m, ok := map[string]string{"errors":"error"}, true
+	for k, s := range v.(M) {
+		s = strings.TrimSpace(s.(string))
+		m[k] = s.(string)
+		switch {
+		case s.(string) == "":
+			m["errors"] = m["errors"]+", "+k+" required"
+			ok = false
+		case strings.Contains(s.(string), ","):
+			m[k] = strings.Replace(s.(string), ",", "", -1)
+		case k == "email":
+			if strings.Count(s.(string), "@") != 1 {
+				m["errors"] = m["errors"]+", invalid email"
+				ok = false
+				break
+			}
+		case k == "pass":
+			if len(s.(string)) < 6 {
+				m["errors"] = m["errors"]+", min length 6"
+				ok = false
+				break
+
+			}
 		}
 	}
-	if len(ss) == 0 {
-		return "", true
+	if _, ok := v.(M)["confirm"]; ok {
+		if v.(M)["confirm"].(string) != v.(M)["pass"].(string) {
+			m["errors"] = m["errors"]+", pass does not match"
+			ok = false
+		}
 	}
-	return strings.ToUpper(strings.Join(ss, ", ")), false
+	return m, ok
 }
