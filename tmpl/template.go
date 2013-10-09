@@ -127,24 +127,32 @@ func (self *TemplateStore) Valid(w http.ResponseWriter, v interface{}) (map[stri
 			m[k] = strings.Replace(s.(string), ",", "", -1)
 		case k == "email":
 			if strings.Count(s.(string), "@") != 1 {
-				m["errors"] = m["errors"]+", invalid email"
+				m["errors"] = m["errors"]+" invalid email"
 				ok = false
 				break
 			}
 		case k == "pass":
 			if len(s.(string)) < 6 {
-				m["errors"] = m["errors"]+", min length 6"
+				m["errors"] = m["errors"]+" min length 6"
 				ok = false
 				break
 
 			}
+		case k == "confirm":
+			if s.(string) != v.(M)["pass"].(string) {
+				m["errors"] = m["errors"]+" pass does not match"
+				ok = false
+				break
+			}
 		}
 	}
+	/*
 	if _, ok := v.(M)["confirm"]; ok {
 		if v.(M)["confirm"].(string) != v.(M)["pass"].(string) {
 			m["errors"] = m["errors"]+", pass does not match"
 			ok = false
 		}
 	}
+	*/
 	return m, ok
 }
