@@ -35,13 +35,14 @@ func NewTemplateStore(dir, base string) *TemplateStore {
 		base:   base,
 		cached: make(map[string]*template.Template),
 		funcs: template.FuncMap{
-			"title": strings.Title,
-			"safe":  safe,
-			"eq":    eq,
-			"add":   add,
-			"sub":   sub,
-			"decr":  decr,
-			"incr":  incr,
+			"title"	: 	strings.Title,
+			"safe"	: 	safe,
+			"eq"	: 	eq,
+			"add"	: 	add,
+			"sub"	:	sub,
+			"decr"	:	decr,
+			"incr"	:	incr,
+			"split"	:	strings.Split, 
 		},
 	}
 }
