@@ -11,9 +11,9 @@ import (
 	"net/http"
 	"reflect"
 	"strings"
+	"nard"
 	"sync"
 	"fmt"
-
 )
 
 // map type
@@ -42,9 +42,19 @@ func NewTemplateStore(dir, base string) *TemplateStore {
 			"sub"	:	sub,
 			"decr"	:	decr,
 			"incr"	:	incr,
-			"split"	:	strings.Split, 
+			"split"	:	strings.Split,
+			"dbcall":	dbcall,
 		},
 	}
+}
+
+// database caller
+func dbcall(s string) []string {
+	c := nard.InitClient("localhost:12345")
+	c.Open()
+	r := c.Call(s)
+	c.Close()
+	return strings.Split(string(r), ",")
 }
 
 // html safe escaper
