@@ -41,6 +41,16 @@ func (self *Form) Add(i *Input) {
 	self.Inputs = append(self.Inputs, i)
 }
 
+// populate form values
+func (self *Form) SetVals(ss []string) {
+	if len(ss) != len(self.Inputs) {
+		return
+	}
+	for i, _ := range self.Inputs {
+		self.Inputs[i].Value = ss[i]
+	}
+}
+
 /*
 	if !form.IsValid(r) {
 		ts.Render(w, "example.html", html.M{"form":form.Render()})
@@ -239,7 +249,7 @@ const (
 // default template
 var DEFAULT *template.Template
 var DEFAULT_FORM=`<div class="col-sm-12">
-	<form class="form form-horizontal" role="form" method="post" action="{{.Action}}">
+	<form class="form form-horizontal form-tight" role="form" method="post" action="{{.Action}}">
 		{{if .Header}}<legend class="col-sm-12">{{.Header}}</legend>{{end}}
 		{{range .Inputs}}
 		<div class="form-group line">
