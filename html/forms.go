@@ -24,6 +24,7 @@ type Form struct {
 	Submit		*Button
 	Errors		map[string]string 
 	t 			*template.Template
+	values		[]string
 }
 
 // initialize form struct
@@ -33,6 +34,7 @@ func InitForm(action, header string, submit *Button) *Form {
 		Header  : header,
 		Submit 	: submit,
 		t 		: template.Must(template.New("form").Parse(DEFAULT_FORM)),
+		Errors  : make(map[string]string),
 	}
 }
 
@@ -49,6 +51,14 @@ func (self *Form) SetVals(ss []string) {
 	for i, _ := range self.Inputs {
 		self.Inputs[i].Value = ss[i]
 	}
+}
+
+//
+func (self *Form) GetVals() []string {
+	for i, _ := range self.Inputs {
+		self.values = append(self.values, self.Inputs[i].Value)
+	}
+	return self.values
 }
 
 /*
@@ -69,10 +79,13 @@ func (self *Form) SetVals(ss []string) {
 // form validator
 func (self *Form) IsValid(r *http.Request) bool {
 	validState := true
+	var match []string
 	for i := 0; i < len(self.Inputs); i++ {
 		formVal := r.FormValue(self.Inputs[i].Name)
 		if self.Inputs[i].Type != "password" {
 			formVal = clean(formVal)
+		} else {
+			match = append(match, formVal)
 		}
 		if self.Inputs[i].Required {
 			if len(formVal) < 1 {
@@ -127,6 +140,15 @@ func (self *Form) IsValid(r *http.Request) bool {
 			} else {
 				self.Inputs[i].Value = formVal
 			}
+		}
+	}
+	if len(match) == 2 && match[0] != match[1] {
+		validState = false
+		for i, _ := range self.Inputs {
+			if self.Inputs[i].Type == "password" {
+				self.Inputs[i].Err = "*Passwords do not match"
+				self.Errors[self.Inputs[i].Name] = "*Passwords do not match"
+			} 
 		}
 	}
 	return validState
