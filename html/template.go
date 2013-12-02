@@ -9,13 +9,15 @@
 package html
 
 import (
+	"encoding/base64"
+	"fmt"
 	"html/template"
 	"net/http"
+	"net/url"
 	"reflect"
+	"sort"
 	"strings"
 	"sync"
-	"sort"
-	"fmt"
 )
 
 // map type
@@ -37,17 +39,29 @@ func InitTemplateStore(dir, base string) *TemplateStore {
 		base:   base,
 		cached: make(map[string]*template.Template),
 		funcs: template.FuncMap{
-			"title"	: 	strings.Title,
-			"safe"	: 	safe,
-			"eq"	: 	eq,
-			"add"	: 	add,
-			"sub"	:	sub,
-			"decr"	:	decr,
-			"incr"	:	incr,
-			"split"	:	strings.Split,
-			"sort"  :	sorter,
+			"title": strings.Title,
+			"safe":  safe,
+			"eq":    eq,
+			"add":   add,
+			"sub":   sub,
+			"decr":  decr,
+			"incr":  incr,
+			"split": strings.Split,
+			"sort":  sorter,
+			"enc":   Encode,
+			"dec":   Decode,
 		},
 	}
+}
+
+func Encode(s string, a ...interface{}) string {
+	return base64.StdEncoding.EncodeToString([]byte(url.QueryEscape(fmt.Sprintf(s, a...))))
+}
+
+func Decode(s string) string {
+	val, _ := base64.StdEncoding.DecodeString(s)
+	val2, _ := url.QueryUnescape(string(val))
+	return val2
 }
 
 // sorts a string slice

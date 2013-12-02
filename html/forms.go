@@ -9,32 +9,32 @@
 package html
 
 import (
+	"bytes"
+	"fmt"
 	"html/template"
 	"net/http"
 	"strings"
-	"bytes"
-	"fmt"
 )
 
 // form structure
 type Form struct {
-	Header		string
-	Action	 	string
-	Inputs 		[]*Input
-	Submit		*Button
-	Errors		map[string]string 
-	t 			*template.Template
-	values		[]string
+	Header string
+	Action string
+	Inputs []*Input
+	Submit *Button
+	Errors map[string]string
+	t      *template.Template
+	values map[string]string
 }
 
 // initialize form struct
 func InitForm(action, header string, submit *Button) *Form {
 	return &Form{
-		Action	: action,
-		Header  : header,
-		Submit 	: submit,
-		t 		: template.Must(template.New("form").Parse(DEFAULT_FORM)),
-		Errors  : make(map[string]string),
+		Action: action,
+		Header: header,
+		Submit: submit,
+		t:      template.Must(template.New("form").Parse(DEFAULT_FORM)),
+		Errors: make(map[string]string),
 	}
 }
 
@@ -44,19 +44,16 @@ func (self *Form) Add(i *Input) {
 }
 
 // populate form values
-func (self *Form) SetVals(ss []string) {
-	if len(ss) != len(self.Inputs) {
-		return
-	}
+func (self *Form) SetVals(m map[string]string) {
 	for i, _ := range self.Inputs {
-		self.Inputs[i].Value = ss[i]
+		self.Inputs[i].Value = m[self.Inputs[i].Name]
 	}
 }
 
 //
-func (self *Form) GetVals() []string {
+func (self *Form) GetVals() map[string]string {
 	for i, _ := range self.Inputs {
-		self.values = append(self.values, self.Inputs[i].Value)
+		self.values[self.Inputs[i].Name] = self.Inputs[i].Value
 	}
 	return self.values
 }
@@ -148,7 +145,7 @@ func (self *Form) IsValid(r *http.Request) bool {
 			if self.Inputs[i].Type == "password" {
 				self.Inputs[i].Err = "*Passwords do not match"
 				self.Errors[self.Inputs[i].Name] = "*Passwords do not match"
-			} 
+			}
 		}
 	}
 	return validState
@@ -163,7 +160,7 @@ func (self *Form) Render() string {
 
 // sanitize
 func clean(s string) string {
-	return strings.Replace(strings.Replace(strings.Join(strings.Fields(s), " "), ",","", -1), ";","", -1)
+	return strings.Replace(strings.Replace(strings.Join(strings.Fields(s), " "), ",", "", -1), ";", "", -1)
 }
 
 // check is string is a number
@@ -179,9 +176,9 @@ func isNumber(s string) bool {
 
 // input structure
 type Input struct {
-	Name, Type, Value, Holder, Err, Class 	string
-	Required								bool
-	Max, Min								int
+	Name, Type, Value, Holder, Err, Class string
+	Required                              bool
+	Max, Min                              int
 }
 
 // text input
@@ -193,19 +190,22 @@ func TextInput(name, holder string) *Input {
 func NumberInput(name, holder string) *Input {
 	return InitInput("number", name, holder)
 }
- 
+
 // email input
 func EmailInput(name, holder string) *Input {
 	return InitInput("email", name, holder)
 }
+
 // password input
 func PassInput(name, holder string) *Input {
 	return InitInput("password", name, holder)
 }
+
 // date input
 func DateInput(name, holder string) *Input {
 	return InitInput("date", name, holder)
 }
+
 // hidden input
 func HiddenInput(name, holder string) *Input {
 	return InitInput("hidden", name, holder)
@@ -214,9 +214,9 @@ func HiddenInput(name, holder string) *Input {
 // initialize input struct
 func InitInput(typ, name, holder string) *Input {
 	return &Input{
-		Type 		: typ,
-		Name 		: name,
-		Holder 		: holder,
+		Type:   typ,
+		Name:   name,
+		Holder: holder,
 	}
 }
 
@@ -246,31 +246,31 @@ func (self *Input) SetRequired() *Input {
 
 // button structure
 type Button struct {
-	Icon, Color, Name 	string
+	Icon, Color, Name string
 }
 
 // initialize button struct
 func InitButton(icon, color, name string) *Button {
 	return &Button{
-		Icon 	: icon,
-		Color 	: color,
-		Name	: name,
+		Icon:  icon,
+		Color: color,
+		Name:  name,
 	}
 }
 
 const (
-	WHITE		= "btn-default"
-	BLUE 		= "btn-primary"
-	GREEN 		= "btn-success"
-	LIGHT_BLUE 	= "btn-info"
-	ORANGE 		= "btn-warning"
-	RED 		= "btn-danger"
-	LINK 		= "btn-link"
+	WHITE      = "btn-default"
+	BLUE       = "btn-primary"
+	GREEN      = "btn-success"
+	LIGHT_BLUE = "btn-info"
+	ORANGE     = "btn-warning"
+	RED        = "btn-danger"
+	LINK       = "btn-link"
 )
 
 // default template
 var DEFAULT *template.Template
-var DEFAULT_FORM=`<div class="col-sm-12">
+var DEFAULT_FORM = `<div class="col-sm-12">
 	<form class="form form-horizontal form-tight" role="form" method="post" action="{{.Action}}">
 		{{if .Header}}<legend class="col-sm-12">{{.Header}}</legend>{{end}}
 		{{range .Inputs}}
