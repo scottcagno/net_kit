@@ -7,13 +7,11 @@
 package tmpl
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
-	"reflect"
 	"strings"
-	"nard"
 	"sync"
-	"fmt"
 )
 
 // map type
@@ -35,55 +33,20 @@ func NewTemplateStore(dir, base string) *TemplateStore {
 		base:   base,
 		cached: make(map[string]*template.Template),
 		funcs: template.FuncMap{
-			"title"	: 	strings.Title,
-			"safe"	: 	safe,
-			"eq"	: 	eq,
-			"add"	: 	add,
-			"sub"	:	sub,
-			"decr"	:	decr,
-			"incr"	:	incr,
-			"split"	:	strings.Split,
-			"dbcall":	dbcall,
+			"title": strings.Title,
+			"safe":  safe,
+			"add":   add,
+			"sub":   sub,
+			"decr":  decr,
+			"incr":  incr,
+			"split": strings.Split,
 		},
 	}
-}
-
-// database caller
-func dbcall(s string) []string {
-	c := nard.InitClient("localhost:12345")
-	c.Open()
-	r := c.Call(s)
-	c.Close()
-	return strings.Split(string(r), ",")
 }
 
 // html safe escaper
 func safe(html string) template.HTML {
 	return template.HTML(html)
-}
-
-// check for equality
-func eq(args ...interface{}) bool {
-	if len(args) == 0 {
-		return false
-	}
-	x := args[0]
-	switch x := x.(type) {
-	case string, int, int64, byte, float32, float64:
-		for _, y := range args[1:] {
-			if x == y {
-				return true
-			}
-		}
-		return false
-	}
-
-	for _, y := range args[1:] {
-		if reflect.DeepEqual(x, y) {
-			return true
-		}
-	}
-	return false
 }
 
 // decrement
@@ -126,44 +89,44 @@ func (self *TemplateStore) ContentType(w http.ResponseWriter, typ string) {
 
 // simple form validater
 func (self *TemplateStore) Valid(w http.ResponseWriter, v interface{}) (map[string]string, bool) {
-	m, ok := map[string]string{"errors":"error"}, true
+	m, ok := map[string]string{"errors": "error"}, true
 	for k, s := range v.(M) {
 		s = strings.TrimSpace(s.(string))
 		m[k] = s.(string)
 		switch {
 		case s.(string) == "":
-			m["errors"] = m["errors"]+", "+k+" required"
+			m["errors"] = m["errors"] + ", " + k + " required"
 			ok = false
 		case strings.Contains(s.(string), ","):
 			m[k] = strings.Replace(s.(string), ",", "", -1)
 		case k == "email":
 			if strings.Count(s.(string), "@") != 1 {
-				m["errors"] = m["errors"]+" invalid email"
+				m["errors"] = m["errors"] + " invalid email"
 				ok = false
 				break
 			}
 		case k == "pass":
 			if len(s.(string)) < 6 {
-				m["errors"] = m["errors"]+" min length 6"
+				m["errors"] = m["errors"] + " min length 6"
 				ok = false
 				break
 
 			}
 		case k == "confirm":
 			if s.(string) != v.(M)["pass"].(string) {
-				m["errors"] = m["errors"]+" pass does not match"
+				m["errors"] = m["errors"] + " pass does not match"
 				ok = false
 				break
 			}
 		}
 	}
 	/*
-	if _, ok := v.(M)["confirm"]; ok {
-		if v.(M)["confirm"].(string) != v.(M)["pass"].(string) {
-			m["errors"] = m["errors"]+", pass does not match"
-			ok = false
+		if _, ok := v.(M)["confirm"]; ok {
+			if v.(M)["confirm"].(string) != v.(M)["pass"].(string) {
+				m["errors"] = m["errors"]+", pass does not match"
+				ok = false
+			}
 		}
-	}
 	*/
 	return m, ok
 }

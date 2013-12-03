@@ -129,27 +129,32 @@ func init() {
 }
 
 var PARTIAL *template.Template
-var PARTIAL_FORM = `<fieldset>		
-    {{range .Inputs}}
-        <label class="lead-small text-error text-left">{{ .Error }}</label>
-        <input class="input{{if .Class}} {{.Class}}{{end}}" type="{{.Type}}" name="{{.Name}}" {{ if .Value }}value="{{ .Value }}"{{ end }} placeholder="{{ .Holder }}" {{if .Min}}min="{{.Min}}"{{end}} {{if .Max}}max="{{.Max}}"{{end}} {{if .Required}}required{{end}}>
-    {{end}}
-</fieldset>`
+var PARTIAL_FORM = `{{range .Inputs}}
+    	<div class="form-group">
+        	<label class="text-danger text-left">{{ .Error }}</label>
+        	<input class="input{{if .Class}} {{.Class}}{{end}}" type="{{.Type}}" name="{{.Name}}" {{ if .Value }}value="{{ .Value }}"{{ end }} placeholder="{{ .Holder }}" {{if .Min}}min="{{.Min}}"{{end}} {{if .Max}}max="{{.Max}}"{{end}} {{if .Required}}required{{end}}>
+    	</div>
+    {{end}}`
 
 var DEFAULT *template.Template
-var DEFAULT_FORM = `<form method="post" action="{{ .Action }}" class="text-center">
-    <fieldset>		
+var DEFAULT_FORM = `<form method="post" action="{{ .Action }}" class="form form-horizontal" role="form">	
     {{range .Inputs}}
-        <label class="lead-small text-error text-left">{{ .Error }}</label>
-        <input class="input{{if .Class}} {{.Class}}{{end}}" type="{{.Type}}" name="{{.Name}}" {{ if .Value }}value="{{ .Value }}"{{ end }} placeholder="{{ .Holder }}" {{if .Min}}min="{{.Min}}"{{end}} {{if .Max}}max="{{.Max}}"{{end}} {{if .Required}}required{{end}}>
+    	<div class="form-group line">
+    		<div class="col-sm-12">
+        		{{ if .Error }}<label class="text-danger text-left">{{ .Error }}</label>{{ end }}
+        		<input class="form-control{{if .Class}} {{.Class}}{{end}}" type="{{.Type}}" name="{{.Name}}" {{ if .Value }}value="{{ .Value }}"{{ end }} placeholder="{{ .Holder }}" {{if .Min}}min="{{.Min}}"{{end}} {{if .Max}}max="{{.Max}}"{{end}} {{if .Required}}required{{end}}>
+    		</div>
+    	</div>
     {{end}}
-    	<hr />
-       	<button {{ if .ButtonName }}name="{{ .ButtonName }}"{{ end }} type="submit" class="btn">{{ .Button }}</button>
-    </fieldset>
-</form>`
+    	<div class="form-group">
+    		<div class="col-sm-12">
+    			<button {{ if .ButtonName }}name="{{ .ButtonName }}"{{ end }} type="submit" class="btn btn-default">{{ .Button }}</button>
+    		</div>
+    	</div>
+    </form>`
 var INLINE *template.Template
-var INLINE_FORM = `<form method="post" action="{{ .Action }}" class="form-inline">
-<p class="text-error">{{ if .Errors }}{{ range .Inputs }}{{ .Error }}<br/>{{ end }}{{ end }}</p>
+var INLINE_FORM = `<form role="form" method="post" action="{{ .Action }}" class="form-inline">
+<p class="text-danger">{{ if .Errors }}{{ range .Inputs }}{{ .Error }}<br/>{{ end }}{{ end }}</p>
 {{range .Inputs}}
     <input class="input{{if .Class}} {{.Class}}{{end}}" type="{{.Type}}" name="{{.Name}}" value="{{.Value}}" placeholder="{{ .Holder }}" {{if .Min}}min="{{.Min}}"{{end}} {{if .Max}}max="{{.Max}}"{{end}} {{if .Required}}required{{end}}>
 {{end}}
