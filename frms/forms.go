@@ -148,7 +148,7 @@ var DEFAULT_FORM = `<form method="post" action="{{ .Action }}" class="form form-
     {{end}}
     	<div class="form-group">
     		<div class="col-sm-12">
-    			<button {{ if .ButtonName }}name="{{ .ButtonName }}"{{ end }} type="submit" class="btn btn-default">{{ .Button }}</button>
+    			<button {{ if .ButtonName }}name="{{ .ButtonName }}"{{ end }} type="submit" class="btn btn-zoom">{{ .Button }}</button>
     		</div>
     	</div>
     </form>`
