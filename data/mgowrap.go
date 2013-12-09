@@ -89,6 +89,36 @@ func (self *MgoWrapper) Return(v ...interface{}) interface{} {
 	return ret
 }
 
+// return
+func (self *MgoWrapper) ReturnSort(sid string, v ...interface{}) interface{} {
+	var lmt int
+	var sel, set, ret interface{}
+	for k, val := range v {
+		switch val.(type) {
+		case int:
+			lmt = val.(int)
+			v = append(v[:k], v[k+1:]...)
+		}
+	}
+	switch len(v) {
+	case 1:
+		sel, set = bson.M{}, v[0]
+	case 2:
+		sel, set = v[0], v[1]
+	default:
+		ret = nil
+	}
+	switch lmt {
+	case 0:
+		ret = self.C.Find(sel).Sort(sid).All(set)
+	case 1:
+		ret = self.C.Find(sel).Sort("-_id").One(set)
+	default:
+		ret = self.C.Find(sel).Sort(sid).Limit(lmt).All(set)
+	}
+	return ret
+}
+
 // delete
 func (self *MgoWrapper) Delete(v ...interface{}) interface{} {
 	info, err := self.C.RemoveAll(v[0])
