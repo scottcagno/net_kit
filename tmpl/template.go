@@ -72,6 +72,15 @@ func (self *TemplateStore) Load(name ...string) {
 	}
 }
 
+// register raw html strings into cache (must supply keys)
+func (self *TemplateStore) Register(m map[string]string) {
+	self.mu.Lock()
+	defer self.mu.Unlock()
+	for k, v := range m {
+		self.cached[k] = template.Must(template.New("tmpl").Funcs(self.funcs).Parse(v))
+	}
+}
+
 // render a template by name
 func (self *TemplateStore) Render(w http.ResponseWriter, name string, m interface{}) {
 	self.cached[name].Execute(w, m)
@@ -87,6 +96,7 @@ func (self *TemplateStore) ContentType(w http.ResponseWriter, typ string) {
 	w.Header().Set("Content Type", typ)
 }
 
+/*
 // simple form validater
 func (self *TemplateStore) Valid(w http.ResponseWriter, v interface{}) (map[string]string, bool) {
 	m, ok := map[string]string{"errors": "error"}, true
@@ -120,13 +130,14 @@ func (self *TemplateStore) Valid(w http.ResponseWriter, v interface{}) (map[stri
 			}
 		}
 	}
-	/*
+
 		if _, ok := v.(M)["confirm"]; ok {
 			if v.(M)["confirm"].(string) != v.(M)["pass"].(string) {
 				m["errors"] = m["errors"]+", pass does not match"
 				ok = false
 			}
 		}
-	*/
+
 	return m, ok
 }
+*/
