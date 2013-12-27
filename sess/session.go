@@ -179,6 +179,7 @@ func (self *Session) GetFlash(key string) []string {
 
 func (self *Session) Has(key string) bool {
 	_, ok := self.vals[key]
+	self.store.Update(self.sid)
 	return ok
 }
 
