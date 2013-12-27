@@ -177,15 +177,20 @@ func (self *Session) GetFlash(key string) []string {
 	return flash
 }
 
+func (self *Session) Has(key string) bool {
+	_, ok := self.vals[key]
+	return ok
+}
+
 func (self *Session) Set(key string, vals []string) {
 	self.vals[key] = vals
 	self.store.Update(self.sid)
 }
 
 func (self *Session) Get(key string) []string {
-	if vals, ok := self.vals[key]; ok {
+	if _, ok := self.vals[key]; ok {
 		self.store.Update(self.sid)
-		return vals
+		return self.vals[key]
 	}
 	return nil
 }
