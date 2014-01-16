@@ -17,7 +17,7 @@ type WebServer struct {
 	http.Server
 }
 
-func NewWebServer() *WesbServer {
+func NewWebServer() *WebServer {
 	server := &WebServer{}
 	server.ReadTimeout = 10 * time.Second
 	server.WriteTimeout = 10 * time.Second
