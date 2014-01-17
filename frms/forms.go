@@ -20,9 +20,9 @@ type MultiForm struct {
 }
 
 type Form struct {
-	Action, Button, ButtonName string
-	Inputs                     []Input
-	Errors                     map[string]string
+	Id, Action, Button, ButtonName string
+	Inputs                         []Input
+	Errors                         map[string]string
 }
 
 type Input struct {
@@ -137,7 +137,7 @@ var PARTIAL_FORM = `{{range .Inputs}}
     {{end}}`
 
 var DEFAULT *template.Template
-var DEFAULT_FORM = `<form method="post" action="{{ .Action }}" class="form form-horizontal" role="form">	
+var DEFAULT_FORM = `<form {{ if .Id }}id="{{ .Id }}"{{ end }} method="post" action="{{ .Action }}" class="form form-horizontal" role="form">	
     {{range .Inputs}}
     	<div class="form-group line">
     		<div class="col-sm-12">
