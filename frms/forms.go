@@ -14,15 +14,16 @@ import (
 	"strings"
 )
 
+/*
 type MultiForm struct {
 	Action, Button, ButtonName string
 	Forms                      map[string]*template.Template
 }
+*/
 
 type Form struct {
-	Id, Action, Button, ButtonName string
-	Inputs                         []Input
-	Errors                         map[string]string
+	Inputs []Input
+	Errors map[string]string
 }
 
 type Input struct {
@@ -124,20 +125,23 @@ func init() {
 		},
 	}
 	DEFAULT = template.Must(template.New("form").Funcs(FUNCS).Parse(DEFAULT_FORM))
-	INLINE = template.Must(template.New("form").Funcs(FUNCS).Parse(INLINE_FORM))
-	PARTIAL = template.Must(template.New("form").Funcs(FUNCS).Parse(PARTIAL_FORM))
+	//INLINE = template.Must(template.New("form").Funcs(FUNCS).Parse(INLINE_FORM))
+	//PARTIAL = template.Must(template.New("form").Funcs(FUNCS).Parse(PARTIAL_FORM))
 }
 
-var PARTIAL *template.Template
-var PARTIAL_FORM = `{{range .Inputs}}
-    	<div class="form-group">
-        	<label class="text-danger text-left">{{ .Error }}</label>
-        	<input class="input{{if .Class}} {{.Class}}{{end}}" type="{{.Type}}" name="{{.Name}}" {{ if .Value }}value="{{ .Value }}"{{ end }} placeholder="{{ .Holder }}" {{if .Min}}min="{{.Min}}"{{end}} {{if .Max}}max="{{.Max}}"{{end}} {{if .Required}}required{{end}}>
+var DEFAULT *template.Template
+var DEFAULT_FORM = `{{range .Inputs}}
+    	<div class="form-group line">
+    		<div class="col-sm-12">
+        		{{ if .Error }}<label class="text-danger text-left">{{ .Error }}</label>{{ end }}
+        		<input class="form-control{{if .Class}} {{.Class}}{{end}}" type="{{.Type}}" name="{{.Name}}" {{ if .Value }}value="{{ .Value }}"{{ end }} placeholder="{{ .Holder }}" {{if .Min}}min="{{.Min}}"{{end}} {{if .Max}}max="{{.Max}}"{{end}} {{if .Required}}required{{end}}>
+    		</div>
     	</div>
     {{end}}`
 
-var DEFAULT *template.Template
-var DEFAULT_FORM = `<form {{ if .Id }}id="{{ .Id }}"{{ end }} method="post" action="{{ .Action }}" class="form form-horizontal" role="form">	
+/*
+var old_DEFAULT *template.Template
+var old_DEFAULT_FORM = `<form {{ if .Id }}id="{{ .Id }}"{{ end }} method="post" action="{{ .Action }}" class="form form-horizontal" role="form">
     {{range .Inputs}}
     	<div class="form-group line">
     		<div class="col-sm-12">
@@ -152,6 +156,7 @@ var DEFAULT_FORM = `<form {{ if .Id }}id="{{ .Id }}"{{ end }} method="post" acti
     		</div>
     	</div>
     </form>`
+
 var INLINE *template.Template
 var INLINE_FORM = `<form role="form" method="post" action="{{ .Action }}" class="form-inline">
 <p class="text-danger">{{ if .Errors }}{{ range .Inputs }}{{ .Error }}<br/>{{ end }}{{ end }}</p>
@@ -160,3 +165,12 @@ var INLINE_FORM = `<form role="form" method="post" action="{{ .Action }}" class=
 {{end}}
     <button {{ if .ButtonName }}name="{{ .ButtonName }}"{{ end }} type="submit" class="btn">{{ .Button }}</button>
 </form>`
+
+var PARTIAL *template.Template
+var PARTIAL_FORM = `{{range .Inputs}}
+    	<div class="form-group">
+        	<label class="text-danger text-left">{{ .Error }}</label>
+        	<input class="input{{if .Class}} {{.Class}}{{end}}" type="{{.Type}}" name="{{.Name}}" {{ if .Value }}value="{{ .Value }}"{{ end }} placeholder="{{ .Holder }}" {{if .Min}}min="{{.Min}}"{{end}} {{if .Max}}max="{{.Max}}"{{end}} {{if .Required}}required{{end}}>
+    	</div>
+    {{end}}`
+*/
