@@ -19,8 +19,8 @@ type WebServer struct {
 
 func NewWebServer() *WebServer {
 	server := &WebServer{}
-	server.ReadTimeout = 10 * time.Second
-	server.WriteTimeout = 10 * time.Second
+	server.ReadTimeout = 15 * time.Second
+	server.WriteTimeout = 15 * time.Second
 	server.MaxHeaderBytes = 1 << 22
 	return server
 }
