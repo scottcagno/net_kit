@@ -7,6 +7,7 @@
 package tmpl
 
 import (
+	"bytes"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -89,6 +90,20 @@ func (self *TemplateStore) Render(w http.ResponseWriter, name string, m interfac
 // render raw data
 func (self *TemplateStore) Raw(w http.ResponseWriter, format string, a ...interface{}) {
 	fmt.Fprintf(w, format, a...)
+}
+
+// render to string
+func (self *TemplateStore) ToString(name string, m interface{}) string {
+	var buf bytes.Buffer
+	self.cached[name].Execute(&buf, m)
+	return buf.String()
+}
+
+// render to []byte
+func (self *TemplateStore) ToBytes(name string, m interface{}) []byte {
+	var buf bytes.Buffer
+	self.cached[name].Execute(&buf, m)
+	return buf.Bytes()
 }
 
 // set the header content type
