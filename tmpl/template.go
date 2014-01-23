@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"time"
 	"strings"
 	"sync"
 )
@@ -36,6 +37,7 @@ func NewTemplateStore(dir, base string) *TemplateStore {
 		funcs: template.FuncMap{
 			"title": strings.Title,
 			"safe":  safe,
+			"date": date,
 			"add":   add,
 			"sub":   sub,
 			"decr":  decr,
@@ -48,6 +50,12 @@ func NewTemplateStore(dir, base string) *TemplateStore {
 // html safe escaper
 func safe(html string) template.HTML {
 	return template.HTML(html)
+}
+
+// print current date in pretty print format
+func date(format string) string {
+	t := time.Now()
+	return fmt.Sprintf(format, t.Month(), t.Day(), t.Year())
 }
 
 // decrement
