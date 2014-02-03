@@ -9,6 +9,7 @@ package data
 import (
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
+	"log"
 )
 
 // mgo data wrapper
@@ -32,6 +33,14 @@ func NewMgoWrapper(host string) *MgoWrapper {
 // set database
 func (self *MgoWrapper) SetDb(db string) *MgoWrapper {
 	self.Database = self.Session.DB(db)
+	return self
+}
+
+func (self *MgoWrapper) Login(user, pass string) *MgoWrapper {
+	err := self.Database.Login(user, pass)
+	if err != nil {
+		log.Panicf("MgoWrapper - login error: %v\n", err)
+	}
 	return self
 }
 
