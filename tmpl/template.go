@@ -37,7 +37,10 @@ func NewTemplateStore(dir, base string) *TemplateStore {
 		funcs: template.FuncMap{
 			"title": strings.Title,
 			"safe":  safe,
-			"date": date,
+			"date":  date,
+			"month": month,
+			"day":	day,
+			"year": year,
 			"add":   add,
 			"sub":   sub,
 			"decr":  decr,
