@@ -55,16 +55,15 @@ func safe(html string) template.HTML {
 	return template.HTML(html)
 }
 
-// print current date in pretty print format
+// return current date in pretty print format
 func date(format string) string {
 	t := time.Now()
 	return fmt.Sprintf(format, t.Month(), t.Day(), t.Year())
 }
 
-// print current month in specified format
+// return month in specified format
 func month(format string) string {
-	t := time.Now()
-	return fmt.Sprintf(format, t.Month())
+	return fmt.Sprintf(format, time.Now().Month())
 }
 
 // return current day 
