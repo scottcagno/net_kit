@@ -58,6 +58,22 @@ func date(format string) string {
 	return fmt.Sprintf(format, t.Month(), t.Day(), t.Year())
 }
 
+// print current month in specified format
+func month(format string) string {
+	t := time.Now()
+	return fmt.Sprintf(format, t.Month())
+}
+
+// return current day 
+func day() int {
+	return time.Now().Day()
+}
+
+// return current year
+func year() int {
+	return time.Now().Year()
+}
+
 // decrement
 func decr(a int) int { return a - 1 }
 
