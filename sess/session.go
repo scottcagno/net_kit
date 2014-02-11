@@ -87,6 +87,7 @@ func (self *Store) GetSession(w http.ResponseWriter, r *http.Request) *Session {
 		http.SetCookie(w, &cookie)
 	} else {
 		sid, _ := url.QueryUnescape(cookie.Value)
+		self.Update(sid)
 		session = self.sessions[sid]
 	}
 	return session
