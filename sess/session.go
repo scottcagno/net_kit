@@ -9,10 +9,10 @@ package sess
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
+    "fmt"
 	"sync"
 	"time"
 )
@@ -50,15 +50,12 @@ func (self *Store) FreshCookie(sid string) http.Cookie {
 		Value:    url.QueryEscape(sid),
 		Path:     "/",
 		HttpOnly: true,
-		MaxAge:   int(self.rate),
-	}
+    }
 }
 
 func (self *Store) FreshSession(sid string) *Session {
 	return &Session{
 		sid:   sid,
-		store: self,
-		ts:    time.Now(),
 		vals:  make(map[string][]string, 0),
 	}
 }
@@ -68,8 +65,12 @@ func (self *Store) NewSession(w http.ResponseWriter, r *http.Request) *Session {
 	defer self.mu.Unlock()
 	sid := Random(32)
 	session := self.FreshSession(sid)
-	self.sessions[sid] = session
-	cookie := self.FreshCookie(sid)
+    cookie := self.FreshCookie(sid)
+    currentTime := time.Now()
+    session.ts = currentTime
+    cookie.Expires = currentTime.Add(time.Duration(self.rate) * time.Second)
+    cookie.MaxAge = int(self.rate)
+    self.sessions[sid] = session
 	http.SetCookie(w, &cookie)
 	return session
 }
@@ -82,12 +83,28 @@ func (self *Store) GetSession(w http.ResponseWriter, r *http.Request) *Session {
 	if err != nil || cookie.Value == "" {
 		sid := Random(32)
 		session = self.FreshSession(sid)
-		self.sessions[sid] = session
 		cookie := self.FreshCookie(sid)
-		http.SetCookie(w, &cookie)
+        currentTime := time.Now()
+        session.ts = currentTime
+        cookie.Expires = currentTime.Add(time.Duration(self.rate) * time.Second)
+        cookie.MaxAge = int(self.rate)
+		self.sessions[sid] = session
+        http.SetCookie(w, &cookie)
 	} else {
 		sid, _ := url.QueryUnescape(cookie.Value)
-		session = self.sessions[sid]
+		if _, ok := self.sessions[sid]; ok {
+            session = self.sessions[sid]
+            currentTime := time.Now()
+            session.ts = currentTime
+            cookie.Expires = currentTime.Add(time.Duration(self.rate) * time.Second)
+            cookie.MaxAge = int(self.rate)
+            cookie.Path = "/"
+            http.SetCookie(w, cookie)
+        } else {
+            cookie.Expires = time.Now()
+            cookie.MaxAge = -1
+            http.SetCookie(w, cookie)
+        }
     }
 	return session
 }
@@ -107,31 +124,6 @@ func (self *Store) DelSession(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, cookie)
 }
 
-func (self *Store) ExtSession(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie(self.cookieId)
-	if err != nil && err == http.ErrNoCookie || cookie.Value == "" {
-		return
-	}
-	self.mu.Lock()
-	defer self.mu.Unlock()
-	sid, _ := url.QueryUnescape(cookie.Value)
-	if session, ok := self.sessions[sid]; ok {
-		*cookie = self.FreshCookie(sid)
-		currentTime := time.Now()
-		session.ts = currentTime
-		cookie.Expires = currentTime.Add(time.Duration(self.rate) * time.Second)
-		http.SetCookie(w, cookie)
-	}
-}
-
-func (self *Store) Update(sid string) {
-	self.mu.Lock()
-	defer self.mu.Unlock()
-	if session, ok := self.sessions[sid]; ok {
-		session.ts = time.Now()
-	}
-}
-
 func (self *Store) GC() {
 	self.mu.Lock()
 	defer self.mu.Unlock()
@@ -142,55 +134,32 @@ func (self *Store) GC() {
 			break
 		}
 	}
-	time.AfterFunc(time.Duration(self.rate)*time.Second, func() {
-		self.GC()
-	})
+	time.AfterFunc(time.Duration(self.rate)*time.Second, func() { self.GC() })
 }
 
 func (self *Store) ViewSessions() {
-	for k, v := range self.sessions {
-		fmt.Printf("key: %v\nval: %v\n\n", k, v)
-	}
+    for k, v := range self.sessions {
+        fmt.Printf("key: %v\nval: %v\n\n", k, v)
+    }
 }
 
 type Session struct {
 	sid   string
-	store *Store
 	ts    time.Time
 	vals  map[string][]string
 }
 
-func (self *Session) SetFlash(style, key, val string) {
-	self.vals["flash-"+key] = []string{style, val}
-	self.store.Update(self.sid)
-}
-
-func (self *Session) GetFlash(key string) []string {
-	flash := make([]string, 2)
-	if vals, ok := self.vals["flash-"+key]; ok {
-		flash = vals
-		delete(self.vals, "flash-"+key)
-		self.store.Update(self.sid)
-	} else {
-		flash = nil
-	}
-	return flash
-}
-
 func (self *Session) Has(key string) bool {
 	_, ok := self.vals[key]
-	self.store.Update(self.sid)
 	return ok
 }
 
 func (self *Session) Set(key string, vals []string) {
 	self.vals[key] = vals
-	self.store.Update(self.sid)
 }
 
 func (self *Session) Get(key string) []string {
 	if _, ok := self.vals[key]; ok {
-		self.store.Update(self.sid)
 		return self.vals[key]
 	}
 	return nil
@@ -198,13 +167,10 @@ func (self *Session) Get(key string) []string {
 
 func (self *Session) Del(key string) {
 	delete(self.vals, key)
-	self.store.Update(self.sid)
 }
 
 func (self *Session) Id() string {
-	id := self.sid
-	self.store.Update(self.sid)
-	return id
+	return self.sid
 }
 
 func Random(n int) string {
