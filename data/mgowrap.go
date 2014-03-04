@@ -50,6 +50,15 @@ func (self *MgoWrapper) SetC(c string) *MgoWrapper {
 	return self
 }
 
+// return count of records in collection
+func (self *MgoWrapper) Count() int {
+    n, err := self.C.Count()
+    if err != nil {
+        return -1
+    }
+    return n
+}
+
 // insert
 func (self *MgoWrapper) Insert(v ...interface{}) interface{} {
 	err := self.C.Insert(v...)
